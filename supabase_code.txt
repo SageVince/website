@@ -1,0 +1,138 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20),
+    address VARCHAR(255)
+);
+
+CREATE TABLE addresses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    street_address VARCHAR(255) NOT NULL,
+    city VARCHAR(255) NOT NULL,
+    state VARCHAR(255) NOT NULL,
+    zip_code VARCHAR(10) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE payment_methods (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    card_number VARCHAR(20) NOT NULL,
+    expiration_date DATE NOT NULL,
+    security_code VARCHAR(4) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE product_categories (
+    id SERIAL PRIMARY KEY,
+    category_name VARCHAR(255) NOT NULL,
+    category_description VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE product_variations (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    size VARCHAR(20) NOT NULL,
+    color VARCHAR(20) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    category_id INTEGER NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    product_description VARCHAR(255) NOT NULL,
+    product_image VARCHAR(255) NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES product_categories(id)
+);
+
+CREATE TABLE shopping_carts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    cart_id INTEGER NOT NULL,
+    order_date DATE NOT NULL,
+    total_cost DECIMAL(10, 2) NOT NULL,
+    order_status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (cart_id) REFERENCES shopping_carts(id)
+);
+
+CREATE TABLE reviews (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    review_text VARCHAR(255) NOT NULL,
+    rating INTEGER NOT NULL,
+    review_date DATE NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE promotions (
+    id SERIAL PRIMARY KEY,
+    promotion_name VARCHAR(255) NOT NULL,
+    promotion_description VARCHAR(255) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL
+);
+
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE product_reviews (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    review_id INTEGER NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (review_id) REFERENCES reviews(id)
+);
+
+CREATE TABLE user_promotions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    promotion_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (promotion_id) REFERENCES promotions(id)
+);
+
+CREATE TABLE product_variations_in_stock (
+    id SERIAL PRIMARY KEY,
+    variation_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (variation_id) REFERENCES product_variations(id)
+);
+
+CREATE TABLE product_variations_sold (
+    id SERIAL PRIMARY KEY,
+    variation_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (variation_id) REFERENCES product_variations(id)
+);
+
+CREATE TABLE order_status_history (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    order_status VARCHAR(20) NOT NULL,
+    update_date DATE NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
